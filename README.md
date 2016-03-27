@@ -30,3 +30,6 @@ PHP. Уровень 2 | Профессиональная веб-разработка | Домашние работы
 	<li>theme/form_new.php - Форма добавления статьи</li>
 	<li>theme/form_edit.php - Форма редактирования статьи</li>
 </ol>
+
+## Ссылка на GitHub
+[GeekBrainsPHPv2](https://github.com/Twist-tracer/GeekBrainsPHPv2)
