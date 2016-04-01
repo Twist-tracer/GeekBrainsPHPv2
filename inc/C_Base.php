@@ -12,7 +12,6 @@ class C_Base extends C_Controller {
     protected $content;
 
     public function __construct() {
-        $this->connectDB = $this->startup();
         $this->top_title = "Главная";
         $this->title = "Добро пожаловать на мой сайт!!!";
 
