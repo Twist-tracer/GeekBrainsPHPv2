@@ -1,6 +1,12 @@
 <?php
 abstract class C_Controller {
 
+    public function Request($action) {
+        $this->Before();
+        $this->$action();
+        $this->Render();
+    }
+
     protected  function IsGet() {
         return $_SERVER["REQUEST_METHOD"] == "GET";
     }
