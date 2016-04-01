@@ -25,5 +25,7 @@ abstract class C_Controller {
         return ob_get_clean();
     }
 
+    abstract protected function Before();
+    abstract protected function Render();
 }
 ?>
