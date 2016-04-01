@@ -21,7 +21,7 @@ class C_Base extends C_Controller {
         $this->content = "";
     }
 
-    public function render() {
+    public function Render() {
        $page = $this->Template("../theme/main.php", array(
            "top_title" => $this->top_title,
            "main_menu" => $this->main_menu,
