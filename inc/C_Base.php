@@ -1,6 +1,4 @@
 <?php
-include_once "C_Controller.php";
-
 class C_Base extends C_Controller {
 
     // Установка параметров, подключение к БД, запуск сессии.
