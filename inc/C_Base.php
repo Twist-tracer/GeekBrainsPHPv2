@@ -24,6 +24,23 @@ class C_Base extends C_Controller {
         $this->content = "";
     }
 
+    public function Before() {
+        // Устанавливаем дескриптор
+        $this->connectDB = $this->startup();
+    }
+
+    public function Render() {
+       $page = $this->Template("theme/main.php", array(
+           "top_title" => $this->top_title,
+           "main_menu" => $this->main_menu,
+           "title" => $this->title,
+           "content" => $this->content
+       ));
+
+       echo $page;
+    }
+
+    // Метод подключения к БД
     private function startup() {
         // Настройки подключения к БД.
         $hostname = 'localhost';
@@ -46,17 +63,6 @@ class C_Base extends C_Controller {
         session_start();
 
         return $connect;
-    }
-
-    public function Render() {
-       $page = $this->Template("theme/main.php", array(
-           "top_title" => $this->top_title,
-           "main_menu" => $this->main_menu,
-           "title" => $this->title,
-           "content" => $this->content
-       ));
-
-       echo $page;
     }
 
 }
