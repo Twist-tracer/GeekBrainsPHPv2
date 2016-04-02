@@ -23,6 +23,10 @@ class C_Base extends C_Controller {
     }
 
     public function Before() {
+        // Языковая настройка.
+        setlocale(LC_ALL, 'ru_RU.UTF-8'); // Устанавливаем нужную локаль (для дат, денег, запятых и пр.)
+        mb_internal_encoding('UTF-8'); // Устанавливаем кодировку строк
+
         // Устанавливаем дескриптор
         $this->connectDB = $this->startup();
     }
@@ -45,10 +49,6 @@ class C_Base extends C_Controller {
         $username = 'root';
         $password = '';
         $dbName = 'GB_PHPv2';
-
-        // Языковая настройка.
-        setlocale(LC_ALL, 'ru_RU.UTF-8'); // Устанавливаем нужную локаль (для дат, денег, запятых и пр.)
-        mb_internal_encoding('UTF-8'); // Устанавливаем кодировку строк
 
         // Подключение к БД.
         $connect = mysqli_connect($hostname, $username, $password) or die('No connect with data base');
