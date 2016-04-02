@@ -75,8 +75,7 @@ class C_Article extends C_Base {
         }
     }
 
-    public function Action_editor()
-    {
+    public function Action_editor() {
         // Извлечение статей.
         $articles = articles_all($this->connectDB);
 
@@ -89,7 +88,7 @@ class C_Article extends C_Base {
             $error = true;
         }
 
-        if (isset($_GET["del"])) $this->Action_delete($_GET["del"], $articles);
+        if ($this->isGet("del")) $this->Action_delete($_GET["del"], $articles);
 
         // Основной шаблон->Менюшка
         $this->main_menu = $this->Template("theme/main_menu.php", array(
@@ -114,8 +113,7 @@ class C_Article extends C_Base {
         ));
     }
 
-    private function Action_delete($id, $articles)
-    {
+    private function Action_delete($id, $articles) {
         // Проверка на присутствие записи с указанным ID
         for ($i = 0; $i < count($articles); $i++) {
             if ($articles[$i]["id"] == $id) {
@@ -132,8 +130,7 @@ class C_Article extends C_Base {
         }
     }
 
-    public function Action_new()
-    {
+    public function Action_new() {
         // Переменные
         $this->top_title = "Консоль редактора | Добавление статьи";
         $this->title = "Консоль редактора";
@@ -204,7 +201,7 @@ class C_Article extends C_Base {
         $this->title = "Консоль редактора";
         $cont_title = "Редактирование статьи";
 
-        if (isset($_GET["id"])) {
+        if ($this->isGet("id")) {
             // Проверка на присутствие записи с указанным ID
             if ($article["id"] == $_GET["id"]) {
                 // Переменная для вывода ошибки над формой
