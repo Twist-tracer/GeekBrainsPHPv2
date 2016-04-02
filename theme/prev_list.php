@@ -6,7 +6,7 @@
                 <h2 class="pre-article__title"><?= $article["title"] ?></h2>
                 <hr>
                 <p class="pre-article__preview_text"><?= $article["content"] ?></p>
-                <a href="index.php?c=article&?a=article?id=<?=$article["id"]?>">Подробнее</a>
+                <a href="index.php?c=article&a=article&id=<?=$article["id"]?>">Подробнее</a>
             </div>
         </div>
 
