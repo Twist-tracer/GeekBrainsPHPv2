@@ -7,7 +7,10 @@ abstract class C_Controller {
         $this->Render();
     }
 
-    protected  function IsGet() {
+    protected  function IsGet($getVar = false) {
+        if($getVar) {
+            return isset($_GET[$getVar]);
+        }
         return $_SERVER["REQUEST_METHOD"] == "GET";
     }
 
