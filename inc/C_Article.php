@@ -1,5 +1,6 @@
 <?php
-include_once "model.php";
+include_once "model/M_Data.php";
+include_once "model/M_Comments.php";
 
 class C_Article extends C_Base {
 
@@ -9,7 +10,7 @@ class C_Article extends C_Base {
 
     public function Action_index() {
         // Извлечение статей.
-        $articles = articles_all($this->connectDB);
+        $articles = M_Data::articles_all();
         $error = false;
 
         if (($articles == false) || (count($articles) <= 0)) {
@@ -19,7 +20,7 @@ class C_Article extends C_Base {
         // Основной шаблон->Центральная часть->Вывод анонсов статей
         $prev_list = $this->Template("theme/prev_list.php", array(
             "error" => $error,
-            "articles" => articles_intro($articles)
+            "articles" => M_Data::articles_intro($articles)
         ));
 
         // Основной шаблон->Центральная часть
@@ -41,10 +42,32 @@ class C_Article extends C_Base {
         }
 
         // Проверка на корректность идентификатора
-        if (is_correctID($id)) {
-            $article = articles_get($this->connectDB, $id);
+        if (M_Data::is_correctID($id)) {
+            $article = M_Data::articles_get($id);
+            $comments = M_Comments::comments_all($id);
 
             if ($article) {
+                $err_noComments = false;
+                $err_formData = false;
+                $c_userName = "";
+                $c_content = "";
+
+                if (($comments == false) || (count($comments) <= 0)) {
+                    $err_noComments = true;
+                }
+
+                // Обработка отправки формы.
+                if ($this->IsPost()) {
+                    if (M_Comments::comments_new($id, $_POST['name'], $_POST['comment'])) {
+                        header("Location: index.php?c=article&a=article&id=$id");
+                        exit;
+                    }
+
+                    $c_userName = $_POST['name'];
+                    $c_content = $_POST['comment'];
+                    $err_formData = true;
+                }
+
                 // Переопределяем переменные
                 $this->top_title = $article["title"];
 
@@ -57,6 +80,25 @@ class C_Article extends C_Base {
                 $article = $this->Template("theme/article.php", array(
                     "title" => $this->top_title,
                     "text" => $article["content"]
+                ));
+
+                // Основной шаблон->Коментарии->Список комментариев
+                $commentsList = $this->Template("theme/commentsList.php", array(
+                    "error" => $err_noComments,
+                    "comments" => $comments
+                ));
+
+                // Основной шаблон->Коментарии->Форма добвления комментария
+                $commentsForm = $this->Template("theme/form_comments.php", array(
+                    "error" => $err_formData,
+                    "name" => $c_userName,
+                    "comment" => $c_content
+                ));
+
+                // Основной шаблон->Коментаарии
+                $this->comments = $this->Template("theme/comments.php", array(
+                    "commentsList" => $commentsList,
+                    "form" => $commentsForm
                 ));
 
                 // Основной шаблон->Центральная часть
@@ -77,7 +119,7 @@ class C_Article extends C_Base {
 
     public function Action_editor() {
         // Извлечение статей.
-        $articles = articles_all($this->connectDB);
+        $articles = M_Data::articles_all();
 
         // Переменные
         $this->top_title = "Консоль редактора";
@@ -123,7 +165,7 @@ class C_Article extends C_Base {
         }
 
         if ($found == true) {
-            if (articles_delete($this->connectDB, $_GET["del"])) {
+            if (M_Data::articles_delete($_GET["del"])) {
                 header('location: index.php?c=article&a=editor');
                 exit;
             }
@@ -143,7 +185,7 @@ class C_Article extends C_Base {
 
         // Обработка отправки формы.
         if ($this->IsPost()) {
-            if (articles_new($this->connectDB, $_POST['title'], $_POST['content'])) {
+            if (M_Data::articles_new($_POST['title'], $_POST['content'])) {
                 header('Location: index.php?c=article&a=editor');
                 exit;
             }
@@ -192,7 +234,7 @@ class C_Article extends C_Base {
 
     public function Action_edit() {
         // Получаем статью по ID
-        $article = articles_get($this->connectDB, $_GET["id"]);
+        $article = M_Data::articles_get($_GET["id"]);
         $art_title = $article["title"];
         $art_content = $article["content"];
 
@@ -202,14 +244,15 @@ class C_Article extends C_Base {
         $cont_title = "Редактирование статьи";
 
         if ($this->isGet("id")) {
+            $id = $_GET["id"];
             // Проверка на присутствие записи с указанным ID
-            if ($article["id"] == $_GET["id"]) {
+            if ($article["id"] == $id) {
                 // Переменная для вывода ошибки над формой
                 $error = false;
 
                 // Обработка отправки формы.
                 if ($this->IsPost()) {
-                    if (articles_edit($this->connectDB, $_GET["id"], $_POST['title'], $_POST['content'])) {
+                    if (M_Data::articles_edit($id, $_POST['title'], $_POST['content'])) {
                         header('Location: index.php?c=article&a=editor');
                         exit;
                     } else {
