@@ -8,10 +8,12 @@ class C_Base extends C_Controller {
     protected $title;
     protected $main_menu;
     protected $content;
+    protected $comments;
 
     public function __construct() {
         $this->top_title = "Главная";
         $this->title = "Добро пожаловать на мой сайт!!!";
+        $this->comments = "";
 
         $main_menu = $this->Template("theme/main_menu.php", array(
             "current" => $this->top_title,
@@ -32,11 +34,13 @@ class C_Base extends C_Controller {
     }
 
     public function Render() {
+        // Основной шаблон->Центральная часть->Вывод статей
        $page = $this->Template("theme/main.php", array(
            "top_title" => $this->top_title,
            "main_menu" => $this->main_menu,
            "title" => $this->title,
-           "content" => $this->content
+           "content" => $this->content,
+           "comments" => $this->comments
        ));
 
        echo $page;
