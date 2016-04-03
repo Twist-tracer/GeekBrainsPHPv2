@@ -20,6 +20,8 @@
         <?=$content?>
     </div>
 
+    <?=$comments?>
+
     <footer class="footer">
         <p class="footer__paragraph">Copyright &copy; 2016 Сема Богданов.</p>
     </footer>
