@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1
--- Время создания: Мар 24 2016 г., 03:25
+-- Время создания: Апр 03 2016 г., 17:05
 -- Версия сервера: 10.1.9-MariaDB
 -- Версия PHP: 5.6.15
 
@@ -32,6 +32,20 @@ CREATE TABLE `gb_articles` (
   `content` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `gb_comments`
+--
+
+CREATE TABLE `gb_comments` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `article_id` int(11) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `comment` text NOT NULL,
+  `date` int(11) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Индексы сохранённых таблиц
 --
@@ -43,6 +57,12 @@ ALTER TABLE `gb_articles`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Индексы таблицы `gb_comments`
+--
+ALTER TABLE `gb_comments`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT для сохранённых таблиц
 --
 
@@ -50,6 +70,11 @@ ALTER TABLE `gb_articles`
 -- AUTO_INCREMENT для таблицы `gb_articles`
 --
 ALTER TABLE `gb_articles`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT для таблицы `gb_comments`
+--
+ALTER TABLE `gb_comments`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
