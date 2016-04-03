@@ -72,6 +72,17 @@ div.globContainer {
 	content: "\002b";
 }
 
+.icon_author:before {
+	font-family: "icons";
+	content: "\e008";
+}
+
+.icon_date:before {
+	top: 1px;
+	font-family: "icons";
+	content: "\e023";
+}
+
 /* Buttons */
 .button {
 	outline: 0;
@@ -429,6 +440,25 @@ textarea:focus::-webkit-input-placeholder {
 	 background-position: 100% -96px;
  }
 
-.form_add-article {
+/* Комментарии */
+.comments {
+	margin: 30px auto;
+}
 
+.comments__title,
+.form__title {
+	text-align: center;
+}
+
+.comment {
+	min-height: 70px;
+	margin: 0;
+	margin-bottom: 25px;
+	padding: 11px 16px 18px 16px;
+	border-radius: 4px;
+	border: 1px solid #C8C8C8;
+}
+
+.comment__header > * {
+	margin-right: 5px;
 }
