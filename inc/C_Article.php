@@ -1,7 +1,4 @@
 <?php
-include_once "model/M_Data.php";
-include_once "model/M_Comments.php";
-
 class C_Article extends C_Base {
 
     public function __construct() {
