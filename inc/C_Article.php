@@ -20,11 +20,25 @@ class C_Article extends C_Base {
             "articles" => M_Data::articles_intro($articles)
         ));
 
+        // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+        $auth = $this->Template("theme/sm_auth.php", array());
+
+        // Основной шаблон->Центральная часть->Сайдбар->Модули
+        $modules = $this->Template("theme/s_modules.php", array(
+            "auth" => $auth,
+            "edit_article" => ""
+        ));
+
+        // Основной шаблон->Центральная часть->Сайдбар
+        $sidebar = $this->Template("theme/sidebar.php", array(
+            "modules" => $modules
+        ));
+
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
-            "width" => "content_full-width",
+            "width" => "",
             "content" => $prev_list,
-            "sidebar" => ""
+            "sidebar" => $sidebar
         ));
 
     }
@@ -92,17 +106,31 @@ class C_Article extends C_Base {
                     "comment" => $c_content
                 ));
 
-                // Основной шаблон->Коментаарии
+                // Основной шаблон->Коментарии
                 $this->comments = $this->Template("theme/comments.php", array(
                     "commentsList" => $commentsList,
                     "form" => $commentsForm
                 ));
 
+                // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+                $auth = $this->Template("theme/sm_auth.php", array());
+
+                // Основной шаблон->Центральная часть->Сайдбар->Модули
+                $modules = $this->Template("theme/s_modules.php", array(
+                    "auth" => $auth,
+                    "edit_article" => ""
+                ));
+
+                // Основной шаблон->Центральная часть->Сайдбар
+                $sidebar = $this->Template("theme/sidebar.php", array(
+                    "modules" => $modules
+                ));
+
                 // Основной шаблон->Центральная часть
                 $this->content = $this->Template("theme/middle_part.php", array(
-                    "width" => "content_full-width",
+                    "width" => "",
                     "content" => $article,
-                    "sidebar" => ""
+                    "sidebar" => $sidebar
                 ));
             } else {
                 header("location: index.php");
@@ -141,8 +169,19 @@ class C_Article extends C_Base {
             "articles" => $articles
         ));
 
+        // Основной шаблон->Центральная часть->Сайдбар->Модули->Редактирования статьи
+        $edit_article = $this->Template("theme/sm_edit_article.php", array());
+
+        // Основной шаблон->Центральная часть->Сайдбар->Модули
+        $modules = $this->Template("theme/s_modules.php", array(
+            "auth" => "",
+            "edit_article" => $edit_article
+        ));
+
         // Основной шаблон->Центральная часть->Сайдбар
-        $sidebar = $this->Template("theme/sidebar.php", array());
+        $sidebar = $this->Template("theme/sidebar.php", array(
+            "modules" => $modules
+        ));
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
