@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="theme/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 
     <title><?=$top_title?></title>
 </head>
