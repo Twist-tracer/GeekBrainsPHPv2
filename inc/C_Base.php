@@ -9,6 +9,7 @@ class C_Base extends C_Controller {
     protected $main_menu;
     protected $content;
     protected $comments;
+    protected $users;
 
     public function __construct() {
         $this->top_title = "Главная";
@@ -31,9 +32,13 @@ class C_Base extends C_Controller {
 
         // Устанавливаем дескриптор
         $this->connectDB = $this->startup();
+        $this->users = M_Users::Instance();
     }
 
     public function Render() {
+        // Очистка старых сессий.
+        $this->users->ClearSessions();
+
         // Основной шаблон->Центральная часть->Вывод статей
        $page = $this->Template("theme/main.php", array(
            "top_title" => $this->top_title,
