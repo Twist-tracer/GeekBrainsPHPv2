@@ -26,7 +26,7 @@ class M_Users
 	//
 	public function __construct()
 	{
-		$this->msql = MSQL::Instance();
+		$this->msql = M_Mysql::GetInstance();
 		$this->sid = null;
 		$this->uid = null;
 	}
@@ -39,7 +39,7 @@ class M_Users
 		$min = date('Y-m-d H:i:s', time() - 60 * 20); 			
 		$t = "time_last < '%s'";
 		$where = sprintf($t, $min);
-		$this->msql->Delete('sessions', $where);
+		$this->msql->Remove('gb_sessions', $where);
 	}
 
 	//
@@ -58,7 +58,7 @@ class M_Users
 		if ($user == null)
 			return false;
 		
-		$id_user = $user['id_user'];
+		$id_user = $user['id'];
 		
 		
 		// проверяем пароль
@@ -77,6 +77,18 @@ class M_Users
 		$this->sid = $this->OpenSession($id_user);
 		
 		return true;
+	}
+
+	public function Register($login, $password) {
+		$table = "gb_users";
+		$object = array(
+			"login" => $login,
+			"password" => md5($password),
+			"id_role" => 3
+		);
+
+		// return insert_id
+		return $this->msql->Insert($table, $object);
 	}
 	
 	//
@@ -108,7 +120,7 @@ class M_Users
 			return null;
 			
 		// А теперь просто возвращаем пользователя по id_user.
-		$t = "SELECT * FROM users WHERE id_user = '%d'";
+		$t = "SELECT * FROM gb_users WHERE id = '%d'";
 		$query = sprintf($t, $id_user);
 		$result = $this->msql->Select($query);
 		return $result[0];		
@@ -119,7 +131,7 @@ class M_Users
 	//
 	public function GetByLogin($login)
 	{	
-		$t = "SELECT * FROM users WHERE login = '%s'";
+		$t = "SELECT * FROM gb_users WHERE login = '%s'";
 		$query = sprintf($t, mysql_real_escape_string($login));
 		$result = $this->msql->Select($query);
 		return $result[0];
@@ -132,20 +144,36 @@ class M_Users
 	// результат	- true или false
 	//
 	public function Can($priv, $id_user = null)
-	{		
-		// СДЕЛАТЬ САМОСТОЯТЕЛЬНО
+	{
+		// Получаем ID Привелегии
+		$priv = $this->GetPrivID($priv);
+
+		// Получаем пользователя
+		$user = $this->Get($id_user);
+		if(!$user) die("Пользователя с ID - $id_user не существует!");
+		$role = $user["id_role"];
+		$result = $this->msql->Select("SELECT * FROM gb_privs2roles WHERE `id_priv`='$priv' AND `id_role`='$role'");
+		if($result) return true;
 		return false;
 	}
+
+	private function GetPrivID($priv) {
+		$result = $this->msql->Select("SELECT `id` FROM gb_privs WHERE `name`='$priv'");
+		return $result[0]["id"];
+	}
+
 
 	//
 	// Проверка активности пользователя
 	// $id_user		- идентификатор
 	// результат	- true если online
 	//
-	public function IsOnline($id_user)
-	{		
-		// СДЕЛАТЬ САМОСТОЯТЕЛЬНО
-		return false;
+	public function IsOnline($id_user) {
+		$query = "SELECT * FROM gb_sessions WHERE `id_user`='$id_user'";
+
+		$result = $this->msql->Select($query);
+		if($result) return true;
+		else return false;
 	}
 	
 	//
@@ -164,7 +192,7 @@ class M_Users
 		if ($sid == null)
 			return null;
 			
-		$t = "SELECT id_user FROM sessions WHERE sid = '%s'";
+		$t = "SELECT id_user FROM gb_sessions WHERE sid = '%s'";
 		$query = sprintf($t, mysql_real_escape_string($sid));
 		$result = $this->msql->Select($query);
 				
@@ -198,11 +226,11 @@ class M_Users
 			$session['time_last'] = date('Y-m-d H:i:s'); 			
 			$t = "sid = '%s'";
 			$where = sprintf($t, mysql_real_escape_string($sid));
-			$affected_rows = $this->msql->Update('sessions', $session, $where);
+			$affected_rows = $this->msql->Update('gb_sessions', $session, $where);
 
 			if ($affected_rows == 0)
 			{
-				$t = "SELECT count(*) FROM sessions WHERE sid = '%s'";		
+				$t = "SELECT count(*) FROM gb_sessions WHERE sid = '%s'";		
 				$query = sprintf($t, mysql_real_escape_string($sid));
 				$result = $this->msql->Select($query);
 				
@@ -218,7 +246,7 @@ class M_Users
 			$user = $this->GetByLogin($_COOKIE['login']);
 			
 			if ($user != null && $user['password'] == $_COOKIE['password'])
-				$sid = $this->OpenSession($user['id_user']);
+				$sid = $this->OpenSession($user['id']);
 		}
 		
 		// Запоминаем в кеш.
@@ -245,7 +273,7 @@ class M_Users
 		$session['sid'] = $sid;
 		$session['time_start'] = $now;
 		$session['time_last'] = $now;				
-		$this->msql->Insert('sessions', $session); 
+		$this->msql->Insert('gb_sessions', $session); 
 				
 		// регистрируем сессию в PHP сессии
 		$_SESSION['sid'] = $sid;				
