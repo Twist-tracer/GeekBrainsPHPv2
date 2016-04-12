@@ -1,7 +1,4 @@
 <?php
-include_once "model/M_Data.php";
-include_once "model/M_Comments.php";
-
 class C_Article extends C_Base {
 
     public function __construct() {
@@ -23,11 +20,14 @@ class C_Article extends C_Base {
             "articles" => M_Data::articles_intro($articles)
         ));
 
+        // Подключаем сайдбар
+        $sidebar = $this->Action_sidebar();
+
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
-            "width" => "content_full-width",
+            "width" => "",
             "content" => $prev_list,
-            "sidebar" => ""
+            "sidebar" => $sidebar
         ));
 
     }
@@ -57,7 +57,7 @@ class C_Article extends C_Base {
                 }
 
                 // Обработка отправки формы.
-                if ($this->IsPost()) {
+                if ($this->IsPost("send-addComment")) {
                     if (M_Comments::comments_new($id, $_POST['name'], $_POST['comment'])) {
                         header("Location: index.php?c=article&a=article&id=$id");
                         exit;
@@ -95,17 +95,20 @@ class C_Article extends C_Base {
                     "comment" => $c_content
                 ));
 
-                // Основной шаблон->Коментаарии
+                // Основной шаблон->Коментарии
                 $this->comments = $this->Template("theme/comments.php", array(
                     "commentsList" => $commentsList,
                     "form" => $commentsForm
                 ));
 
+                // Подключаем сайдбар
+                $sidebar = $this->Action_sidebar();
+
                 // Основной шаблон->Центральная часть
                 $this->content = $this->Template("theme/middle_part.php", array(
-                    "width" => "content_full-width",
+                    "width" => "",
                     "content" => $article,
-                    "sidebar" => ""
+                    "sidebar" => $sidebar
                 ));
             } else {
                 header("location: index.php");
@@ -144,8 +147,19 @@ class C_Article extends C_Base {
             "articles" => $articles
         ));
 
+        // Основной шаблон->Центральная часть->Сайдбар->Модули->Редактирования статьи
+        $edit_article = $this->Template("theme/sm_edit_article.php", array());
+
+        // Основной шаблон->Центральная часть->Сайдбар->Модули
+        $modules = $this->Template("theme/s_modules.php", array(
+            "auth" => "",
+            "edit_article" => $edit_article
+        ));
+
         // Основной шаблон->Центральная часть->Сайдбар
-        $sidebar = $this->Template("theme/sidebar.php", array());
+        $sidebar = $this->Template("theme/sidebar.php", array(
+            "modules" => $modules
+        ));
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
@@ -301,6 +315,77 @@ class C_Article extends C_Base {
             "content" => $form_page,
             "sidebar" => ""
         ));
+    }
+
+    private function Action_sidebar() {
+        // Если Пользователь уже авторизован выводим приветствие,
+        // если нет форму авторизации
+        if(isset($_COOKIE["login"])) {
+            // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+            $auth = $this->Template("theme/sm_auth.php", array(
+                "auth_success" => true,
+                "error" => false,
+                "user" => $_COOKIE["login"]
+            ));
+        } else {
+            // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+            $auth = $this->Template("theme/sm_auth.php", array(
+                "auth_success" => false,
+                "error" => false,
+                "user" => ""
+            ));
+        }
+
+        if($this->isGET("logout")) {
+            $this->users->Logout();
+
+            header("location: ".$_SERVER["HTTP_REFERER"]);
+            exit;
+        }
+
+
+        // Если была отправленна форма с авторизации
+        if($this->isPOST("send-form_auth")) {
+            // Готовим переменные
+            $user = $_POST["login"];
+            $pass = $_POST["password"];
+            if($this->isPOST("remember")) $remember = true;
+            else $remember = false;
+
+            $succcess = $this->users->Login($user, $pass, $remember);
+
+            if($succcess) {
+                // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+                $auth = $this->Template("theme/sm_auth.php", array(
+                    "auth_success" => true,
+                    "error" => false,
+                    "user" => ""
+                ));
+                header("location: ".$_SERVER["HTTP_REFERER"]);
+                exit;
+            }   else {
+                // Основной шаблон->Центральная часть->Сайдбар->Модули->Модуль авторизации
+                $auth = $this->Template("theme/sm_auth.php", array(
+                    "auth_success" => false,
+                    "error" => true,
+                    "user" => ""
+                ));
+            }
+
+        }
+
+        // Основной шаблон->Центральная часть->Сайдбар->Модули
+        $modules = $this->Template("theme/s_modules.php", array(
+            "auth" => $auth,
+            "edit_article" => ""
+        ));
+
+        // Основной шаблон->Центральная часть->Сайдбар
+        $sidebar = $this->Template("theme/sidebar.php", array(
+            "modules" => $modules
+        ));
+
+        return $sidebar;
     }
 
 }

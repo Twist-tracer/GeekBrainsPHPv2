@@ -13,6 +13,7 @@
 
 		private function __construct() {
 			$this->link = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die("Error:".$this->link->error);
+			$this->link->query("SET NAMES 'UTF-8'");
 		}
 
 		public static function GetInstance() {
@@ -20,6 +21,10 @@
 				self::$instance = new M_Mysql();
 
 			return self::$instance;
+		}
+
+		public function __destruct() {
+			if($this->link) $this->link->close();
 		}
 
 		//SELECT * FROM t1 LEFT JOIN t2 ON t1.id = t2.a_id WHERE t1.id > (SELECT MAX(t2.a_id) FROM t2)

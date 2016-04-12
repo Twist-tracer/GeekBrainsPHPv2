@@ -14,7 +14,10 @@ abstract class C_Controller {
         return $_SERVER["REQUEST_METHOD"] == "GET";
     }
 
-    protected  function IsPost() {
+    protected  function IsPost($postVar = false) {
+        if($postVar) {
+            return isset($_POST[$postVar]);
+        }
         return $_SERVER["REQUEST_METHOD"] == "POST";
     }
 
