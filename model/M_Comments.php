@@ -12,6 +12,15 @@ class M_Comments {
         return $comments;
     }
 
+    public static function getCommentAuthor($comment_id) {
+        $db = M_Mysql::GetInstance();
+        $query = "SELECT `name` FROM gb_comments WHERE `id`='$comment_id'";
+
+        $autor = $db->Select($query);
+
+        return $autor[0]["name"];
+    }
+
     // Добавить комментарий
     public static function comments_new($article_id, $name, $comment) {
         $db = M_Mysql::GetInstance();
