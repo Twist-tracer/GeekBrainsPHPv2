@@ -10,9 +10,9 @@ CharsetDefault utf-8
 # ЧПУ
 <IfModule mod_rewrite.c>
 RewriteEngine on
-RewriteBase /php_lvl2/source/lesson7/HW/
+RewriteBase /php_lvl2/source/lesson8/HW/
 RewriteRule ^.htaccess$ - [F]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule .* index.php?q=$0
+RewriteRule .* index.php?q=$0 [QSA]
 </IfModule>
