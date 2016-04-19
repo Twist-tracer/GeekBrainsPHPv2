@@ -92,6 +92,21 @@
             return $db->Remove($table, $where);
         }
 
+        // Удалить комментарий
+        public static function comments_delete($id) {
+            $db = M_Mysql::GetInstance();
+
+            // Проверяем ID на корректность
+            if(!self::is_correctID($id)) return false;
+
+            // Таблица
+            $table = "gb_comments";
+            // Условие
+            $where = "`id`='$id'";
+
+            return $db->Remove($table, $where);
+        }
+
         // Принимает список статей
         // Возвращает список превьюшек
         public static function articles_intro($articles) {
@@ -120,5 +135,3 @@
         }
 
     }
-
-?>
