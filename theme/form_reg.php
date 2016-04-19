@@ -12,7 +12,7 @@
             </tr>
             <tr>
                 <td>Пароль *</td>
-                <td><input type="text" name="password" placeholder="Самый лучший заголовок"></td>
+                <td><input type="password" name="password" placeholder="Самый лучший заголовок"></td>
             </tr>
             <tr>
                 <td colspan="2"><input type="submit" name="send-regUser" class="button button_green button_small addComment-form__send" value="Зарегистрироваться"></td>
