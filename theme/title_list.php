@@ -3,8 +3,8 @@
 
         <ul class="articles-list">
             <li class="articles-list__item">
-                <a class="articles-list__link" href="index.php?c=article&a=edit&id=<?=$article["id"]?>"><?= $article["title"] ?></a>
-                <a class="icon icon_delete articles-list__link" href="index.php?c=article&a=editor&del=<?=$article["id"]?>"></a>
+                <a class="articles-list__link" href="articles/edit/<?=$article["id"]?>"><?= $article["title"] ?></a>
+                <a class="icon icon_delete articles-list__link" href="articles/editor?del=<?=$article["id"]?>"></a>
             </li>
         </ul>
 
