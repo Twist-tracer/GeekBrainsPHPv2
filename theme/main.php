@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <base href="<?=$config->base_url?>">
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
-
     <title><?=$top_title?></title>
 </head>
 <body>
