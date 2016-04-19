@@ -47,7 +47,7 @@ div.globContainer {
 	padding: 0;
 }
 
-.reset-list {
+.list {
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
@@ -85,6 +85,11 @@ div.globContainer {
 	top: 1px;
 	font-family: "icons";
 	content: "\e023";
+}
+
+.icon_edit:before {
+	font-family: "icons";
+	content: "\270f";
 }
 
 /* Buttons */
@@ -491,4 +496,74 @@ textarea:focus::-webkit-input-placeholder {
 	border-spacing: 0 10px;
 	width: 280px;
 	text-align: left;
+}
+
+/* Редактирование пользователя */
+.form__table_edit-user thead tr td {
+	background-color: #F3F3F3;
+}
+
+.form__table_edit-user tr td {
+	border: 1px solid #D3D3D3;
+	padding: 5px;
+}
+
+.form__table_edit-user {
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+.form__table_edit-user tbody tr:last-child td {
+	padding-top: 10px;
+	border: none;
+}
+
+.form__table_edit-user thead td {
+	text-align: center;
+}
+
+
+/* Вкладки */
+/* Базовый контейнер табов */
+.tabs {
+	min-width: 320px;
+	padding: 0px;
+	margin: 0 auto;
+
+}
+
+/* Стили вкладок (табов) */
+.tabs__tab {
+	display: inline-block;
+	margin: 0 0 -1px;
+	padding: 15px 25px;
+	font-weight: 600;
+	text-align: center;
+	color: #aaa;
+	border: 1px solid #ddd;
+	background: #f1f1f1;
+	border-radius: 3px 3px 0 0;
+	text-decoration: none;
+}
+
+/* изменения стиля заголовков вкладок при наведении */
+.tabs__tab:hover {
+	color: #888;
+	cursor: pointer;
+}
+/* стили для активной вкладки */
+.tabs__tab_active {
+	color: #555;
+	border: 1px solid #ddd;
+	border-top: 1px solid #009933;
+	border-bottom: 1px solid #fff;
+	background: #fff;
+}
+
+/* Стили секций с содержанием */
+.tabs__content{
+	display: block;
+	padding: 15px;
+	background: #fff;
+	border: 1px solid #ddd;
 }
