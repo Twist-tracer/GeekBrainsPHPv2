@@ -1,7 +1,10 @@
 <?php
 abstract class C_Controller {
 
-    public function Request($action) {
+    protected $params;
+
+    public function Request($action, $params) {
+        $this->params = $params;
         $this->Before();
         $this->$action();
         $this->Render();
