@@ -25,6 +25,7 @@ class C_Article extends C_Base {
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
+            "have_access" => true,
             "width" => "",
             "content" => $prev_list,
             "sidebar" => $sidebar
@@ -35,9 +36,9 @@ class C_Article extends C_Base {
     public function Action_article() {
         // Делаем еще одну проверку на наличе идентификатора в случае, если
         // он был передан в ручную
-        if (isset($_GET["id"])) $id = $_GET["id"];
+        if (isset($this->params[2])) $id = $this->params[2];
         else {
-            header("location: index.php");
+            header("location: ".$_SERVER["SCRIPT_NAME"]);
             exit;
         }
 
@@ -49,23 +50,58 @@ class C_Article extends C_Base {
             if ($article) {
                 $err_noComments = false;
                 $err_formData = false;
-                $c_userName = "";
+                $c_userName = (isset($_COOKIE['login'])) ? $_COOKIE['login'] : "";
                 $c_content = "";
+                $del_comments_access = false;
 
                 if (($comments == false) || (count($comments) <= 0)) {
                     $err_noComments = true;
                 }
 
+                // Проверка прав пользователя на доступ к консоли
+                // И возможность оставлять/удалять комментарии
+                if(isset($_COOKIE["login"])) {
+                    $current_user = $this->users->GetByLogin($_COOKIE["login"]);
+
+                    if($this->users->Can("CONSOL_ACCESS", $current_user["id"])) {
+                        $consol_access = true;
+                    } else $consol_access = false;
+
+                    if($this->users->Can("LEAVE_COMMENTS", $current_user["id"])) {
+                        $add_comments_access = true;
+                    } else $add_comments_access = false;
+
+                    if($this->users->Can("DELETE_COMMENTS", $current_user["id"])) {
+                        $del_comments_access = true;
+
+                    } else $del_comments_access = false;
+
+                } else {
+                    $consol_access = false;
+                    $add_comments_access = false;
+                }
+
                 // Обработка отправки формы.
                 if ($this->IsPost("send-addComment")) {
                     if (M_Comments::comments_new($id, $_POST['name'], $_POST['comment'])) {
-                        header("Location: index.php?c=article&a=article&id=$id");
+                        header("Location: ".$this->config->base_url."articles/article/$id");
                         exit;
                     }
 
-                    $c_userName = $_POST['name'];
+                    $c_userName = $_COOKIE['login'];
                     $c_content = $_POST['comment'];
                     $err_formData = true;
+                }
+
+                if ($this->IsGet("del")) {
+                    if ($del_comments_access)
+                        $this->Action_com_delete($_GET["del"], $comments);
+                    elseif (M_Comments::getCommentAuthor($_GET["del"]) == $c_userName)
+                        $this->Action_com_delete($_GET["del"], $comments);
+                    else {
+                        header("Location: ".$this->config->base_url."articles/article/$id");
+                        exit;
+                    }
                 }
 
                 // Переопределяем переменные
@@ -73,7 +109,8 @@ class C_Article extends C_Base {
 
                 // Основной шаблон->Менюшка
                 $this->main_menu = $this->Template("theme/main_menu.php", array(
-                    "current" => $this->title
+                    "current" => $this->title,
+                    "consol_access" => $consol_access
                 ));
 
                 // Основной шаблон->Центральная часть->Вывод статьи
@@ -84,12 +121,16 @@ class C_Article extends C_Base {
 
                 // Основной шаблон->Коментарии->Список комментариев
                 $commentsList = $this->Template("theme/commentsList.php", array(
+                    "del_comments_access" => $del_comments_access,
+                    "com_author" => $c_userName,
+                    "article_id" => $this->params[2],
                     "error" => $err_noComments,
                     "comments" => $comments
                 ));
 
                 // Основной шаблон->Коментарии->Форма добвления комментария
                 $commentsForm = $this->Template("theme/form_comments.php", array(
+                    "add_comments_access" => $add_comments_access,
                     "error" => $err_formData,
                     "name" => $c_userName,
                     "comment" => $c_content
@@ -106,16 +147,17 @@ class C_Article extends C_Base {
 
                 // Основной шаблон->Центральная часть
                 $this->content = $this->Template("theme/middle_part.php", array(
+                    "have_access" => true,
                     "width" => "",
                     "content" => $article,
                     "sidebar" => $sidebar
                 ));
             } else {
-                header("location: index.php");
+                header("location: ".$_SERVER["SCRIPT_NAME"]);
                 exit;
             }
         } else {
-            header("location: index.php");
+            header("location: ".$_SERVER["SCRIPT_NAME"]);
             exit;
         }
     }
@@ -125,7 +167,7 @@ class C_Article extends C_Base {
         $articles = M_Data::articles_all();
 
         // Переменные
-        $this->top_title = "Консоль редактора";
+        $this->top_title = "Консоль редактора | Статьи";
         $this->title = "Консоль редактора";
         $error = false;
 
@@ -133,18 +175,36 @@ class C_Article extends C_Base {
             $error = true;
         }
 
-        if ($this->isGet("del")) $this->Action_delete($_GET["del"], $articles);
+        // Проверяем есть ли у пользователя доступ к консоли
+        if(isset($_COOKIE["login"])) {
+            $current_user = $this->users->GetByLogin($_COOKIE["login"]);
+
+            if($this->users->Can("CONSOL_ACCESS", $current_user["id"])) {
+                $have_access = true;
+            }
+        } else {
+            $have_access = false;
+        }
+
+
+        if ($this->IsGet("del")) $this->Action_delete($_GET["del"], $articles);
 
         // Основной шаблон->Менюшка
         $this->main_menu = $this->Template("theme/main_menu.php", array(
-            "current" => $this->title
+            "current" => $this->title,
+            "consol_access" => true
         ));
-
 
         // Основной шаблон->Центральная часть->Вывод заголовков статей
         $title_list = $this->Template("theme/title_list.php", array(
             "error" => $error,
             "articles" => $articles
+        ));
+
+        // Основной шаблон->Центральная часть->Вывод блока со вкладками
+        $tabs_content = $this->Template("theme/tabs.php", array(
+            "current" => "articles",
+            "tabs_content" => $title_list
         ));
 
         // Основной шаблон->Центральная часть->Сайдбар->Модули->Редактирования статьи
@@ -153,7 +213,7 @@ class C_Article extends C_Base {
         // Основной шаблон->Центральная часть->Сайдбар->Модули
         $modules = $this->Template("theme/s_modules.php", array(
             "auth" => "",
-            "edit_article" => $edit_article
+            "edit_article" => $edit_article,
         ));
 
         // Основной шаблон->Центральная часть->Сайдбар
@@ -163,8 +223,9 @@ class C_Article extends C_Base {
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
+            "have_access" => $have_access,
             "width" => "",
-            "content" => $title_list,
+            "content" => $tabs_content,
             "sidebar" => $sidebar
         ));
     }
@@ -179,8 +240,25 @@ class C_Article extends C_Base {
         }
 
         if ($found == true) {
-            if (M_Data::articles_delete($_GET["del"])) {
-                header('location: index.php?c=article&a=editor');
+            if (M_Data::articles_delete($id)) {
+                header("Location: ".$this->config->base_url."articles/editor");
+                exit;
+            }
+        }
+    }
+
+    private function Action_com_delete($id, $comments) {
+        // Проверка на присутствие записи с указанным ID
+        for ($i = 0; $i < count($comments); $i++) {
+            if ($comments[$i]["id"] == $id) {
+                $found = true;
+                break;
+            } else $found = false;
+        }
+
+        if ($found == true) {
+            if (M_Data::comments_delete($id)) {
+                header("Location: ".$_SERVER["HTTP_REFERER"]);
                 exit;
             }
         }
@@ -196,11 +274,22 @@ class C_Article extends C_Base {
         $art_title = "";
         $art_content = "";
 
+        // Проверяем есть ли у пользователя доступ к консоли
+        if(isset($_COOKIE["login"])) {
+            $current_user = $this->users->GetByLogin($_COOKIE["login"]);
+
+            if($this->users->Can("CONSOL_ACCESS", $current_user["id"])) {
+                $have_access = true;
+            }
+        } else {
+            $have_access = false;
+        }
+
 
         // Обработка отправки формы.
         if ($this->IsPost()) {
             if (M_Data::articles_new($_POST['title'], $_POST['content'])) {
-                header('Location: index.php?c=article&a=editor');
+                header("Location: ".$this->config->base_url."articles/editor");
                 exit;
             }
 
@@ -215,12 +304,13 @@ class C_Article extends C_Base {
 
         // Основной шаблон->Менюшка
         $this->main_menu = $this->Template("theme/main_menu.php", array(
+            "consol_access" => true,
             "current" => $this->title,
         ));
 
         // Основной шаблон->Центральная часть->Страница с формой->Хлебные крошки
         $breadcrumbs = $this->Template("theme/breadcrumbs.php", array(
-            "link" => "index.php?c=article&a=new",
+            "link" => "articles/new",
             "cont_title" => $cont_title
         ));
 
@@ -240,6 +330,7 @@ class C_Article extends C_Base {
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
+            "have_access" => $have_access,
             "width" => "content_full-width",
             "content" => $form_page,
             "sidebar" => ""
@@ -248,17 +339,28 @@ class C_Article extends C_Base {
 
     public function Action_edit() {
         // Получаем статью по ID
-        $article = M_Data::articles_get($_GET["id"]);
+        $article = M_Data::articles_get($this->params[2]);
         $art_title = $article["title"];
         $art_content = $article["content"];
+
+        // Проверяем есть ли у пользователя доступ к консоли
+        if(isset($_COOKIE["login"])) {
+            $current_user = $this->users->GetByLogin($_COOKIE["login"]);
+
+            if($this->users->Can("CONSOL_ACCESS", $current_user["id"])) {
+                $have_access = true;
+            }
+        } else {
+            $have_access = false;
+        }
 
         // Переменные
         $this->top_title = "Консоль редактора | Редактирование статьи";
         $this->title = "Консоль редактора";
         $cont_title = "Редактирование статьи";
 
-        if ($this->isGet("id")) {
-            $id = $_GET["id"];
+        if (isset($this->params[2])) {
+            $id = $this->params[2];
             // Проверка на присутствие записи с указанным ID
             if ($article["id"] == $id) {
                 // Переменная для вывода ошибки над формой
@@ -267,7 +369,7 @@ class C_Article extends C_Base {
                 // Обработка отправки формы.
                 if ($this->IsPost()) {
                     if (M_Data::articles_edit($id, $_POST['title'], $_POST['content'])) {
-                        header('Location: index.php?c=article&a=editor');
+                        header("Location: ".$this->config->base_url."articles/editor");
                         exit;
                     } else {
                         $art_title = $_POST['title'];
@@ -276,22 +378,23 @@ class C_Article extends C_Base {
                     }
                 }
             } else {
-                header('Location: index.php?c=article&a=editor');
+                header("Location: .".$this->config->base_url."articles/editor");
                 exit;
             }
         } else {
-            header('Location: index.php?c=article&a=editor');
+            header("Location: .".$this->config->base_url."articles/editor");
             exit;
         }
 
         // Основной шаблон->Менюшка
         $this->main_menu = $this->Template("theme/main_menu.php", array(
+            "consol_access" => true,
             "current" => $this->title
         ));
 
         // Основной шаблон->Центральная часть->Страница с формой->Хлебные крошки
         $breadcrumbs = $this->Template("theme/breadcrumbs.php", array(
-            "link" => "index.php?c=article&a=edit&id=" . $_GET["id"],
+            "link" => $this->config->base_url."articles/edit/" . $this->params[2],
             "cont_title" => $cont_title
         ));
 
@@ -311,6 +414,7 @@ class C_Article extends C_Base {
 
         // Основной шаблон->Центральная часть
         $this->content = $this->Template("theme/middle_part.php", array(
+            "have_access" => $have_access,
             "width" => "content_full-width",
             "content" => $form_page,
             "sidebar" => ""
@@ -377,7 +481,7 @@ class C_Article extends C_Base {
         // Основной шаблон->Центральная часть->Сайдбар->Модули
         $modules = $this->Template("theme/s_modules.php", array(
             "auth" => $auth,
-            "edit_article" => ""
+            "edit_article" => "",
         ));
 
         // Основной шаблон->Центральная часть->Сайдбар
