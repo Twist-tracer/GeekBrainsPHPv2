@@ -6,7 +6,7 @@
         <?php if($error):?>
             <div class="alert alert_error">Неверные имя пользователя или пароль</div>
         <?php endif ?>
-        <form class="form form_auth" name="form-auth" action="#" method="post">
+        <form class="form form_auth" name="form-auth" method="post">
             <div class="form__row">
                 <label class="form__label form-auth__label-login">
                     Имя пользователя<br>
@@ -25,7 +25,7 @@
                 <label for="rem-check">Запомнить меня</label>
             </div>
             <div class="form__row">
-                <a href="index.php?c=page&a=register">Зарегистрироваться</a>
+                <a href="page/register">Зарегистрироваться</a>
             </div>
         </form>
     </aside>
@@ -35,7 +35,7 @@
     <!-- Панель приветствия -->
     <aside class="module module_auth">
         <h2>Вы вошли как <?=$user?></h2>
-        <a href="index.php?c=article&a=index&logout=true">Выйти</a>
+        <a href="<?=$_SERVER["REQUEST_URI"]?>?logout=true">Выйти</a>
     </aside>
 
 <?php } ?>
