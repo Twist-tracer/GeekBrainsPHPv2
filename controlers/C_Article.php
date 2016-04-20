@@ -343,6 +343,11 @@ class C_Article extends C_Base {
         $art_title = $article["title"];
         $art_content = $article["content"];
 
+        // Переменные
+        $this->top_title = "Консоль редактора | Редактирование статьи";
+        $this->title = "Консоль редактора";
+        $cont_title = "Редактирование статьи";
+
         // Проверяем есть ли у пользователя доступ к консоли
         if(isset($_COOKIE["login"])) {
             $current_user = $this->users->GetByLogin($_COOKIE["login"]);
@@ -353,11 +358,6 @@ class C_Article extends C_Base {
         } else {
             $have_access = false;
         }
-
-        // Переменные
-        $this->top_title = "Консоль редактора | Редактирование статьи";
-        $this->title = "Консоль редактора";
-        $cont_title = "Редактирование статьи";
 
         if (isset($this->params[2])) {
             $id = $this->params[2];
